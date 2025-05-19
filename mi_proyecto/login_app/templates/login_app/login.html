@@ -1,0 +1,34 @@
+
+"""
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+</head>
+<body>
+    <h2>Iniciar Sesión</h2>
+    {% if messages %}
+        <ul>
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <label>Usuario:</label>
+        <input type="text" name="usuario"><br>
+        <label>Contraseña:</label>
+        <input type="password" name="contrasena"><br><br>
+        <button type="submit">Ingresar</button>
+    </form>
+</body>
+</html>
+"""
+{% if messages %}
+  <ul>
+  {% for message in messages %}
+    <li>{{ message }}</li>
+  {% endfor %}
+  </ul>
+{% endif %}

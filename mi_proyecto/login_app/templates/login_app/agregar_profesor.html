@@ -1,0 +1,11 @@
+<h2>Agregar Profesor</h2>
+<form method="post">
+    {% csrf_token %}
+    <label>Nombre:</label><input type="text" name="nombre"><br>
+    <label>Especialidad:</label><input type="text" name="especialidad"><br>
+    <label>ID Usuario:</label><input type="number" name="usuario_id"><br>
+    <button type="submit">Agregar</button>
+</form>
+<a href="{% url 'gestionar_profesores' %}">
+    <button type="button">Regresar</button>
+</a>

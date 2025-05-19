@@ -1,0 +1,28 @@
+<!-- login_app/templates/login_app/inicio_profesor.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Inicio Profesor</title>
+</head>
+<body>
+    <h1>Bienvenido Profesor {{ profesor.nombre }}</h1>
+    <p><strong>Especialidad:</strong> {{ profesor.especialidad }}</p>
+
+    <h2>Materias Asignadas</h2>
+    <ul>
+        {% for materia in profesor.materias %}
+            <li>{{ materia.1 }} (ID: {{ materia.0 }})</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Horarios</h2>
+    <ul>
+        {% for h in profesor.horarios %}
+            <li>{{ h.0 }}: {{ h.1 }} - {{ h.2 }}</li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'logout' %}">
+    <button>Salir</button>
+    </a>
+</body>
+</html>

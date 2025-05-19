@@ -1,0 +1,35 @@
+{% extends 'login_app/base.html' %}
+
+{% block content %}
+  <h2>Formulario de Registro</h2>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.usuario.label_tag }} {{ form.usuario }}
+    {{ form.contrasena.label_tag }} {{ form.contrasena }}
+    {{ form.rol.label_tag }} {{ form.rol }}
+    
+    <div id="especialidad-div">
+      {{ form.especialidad.label_tag }} {{ form.especialidad }}
+    </div>
+
+    <button type="submit">Registrarse</button>
+  </form>
+
+  <script>
+    const rolSelect = document.getElementById("id_rol");
+    const especialidadDiv = document.getElementById("especialidad-div");
+
+    function toggleEspecialidad() {
+      if (rolSelect.value === "Profesor") {
+        especialidadDiv.style.display = "block";
+      } else {
+        especialidadDiv.style.display = "none";
+        document.getElementById("id_especialidad").value = "";  // limpia valor
+      }
+    }
+
+    rolSelect.addEventListener("change", toggleEspecialidad);
+    window.addEventListener("load", toggleEspecialidad);
+  </script>
+{% endblock %}

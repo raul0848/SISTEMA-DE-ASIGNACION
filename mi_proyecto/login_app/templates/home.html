@@ -1,0 +1,17 @@
+{% extends 'login_app/base.html' %} {% block content %}
+
+<div class="container">
+  <h1>Home</h1>
+  <h1>Bienvenido al Sistema de Asignación de Horarios</h1>
+  <a href="{% url 'signup' %}">Registro</a>
+
+</div>
+{% if messages %}
+  <ul>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+{% endblock %}

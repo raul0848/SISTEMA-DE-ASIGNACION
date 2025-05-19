@@ -1,0 +1,30 @@
+{% extends 'base.html' %} {% block content %}
+
+<div class="container">
+  <h1>Home</h1>
+  <a href="{% url 'signup' %}">Registro</a>
+
+</div>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Inicio</title>
+</head>
+<body>
+    <h1>Bienvenido al Sistema de Asignación de Horarios</h1>
+    <a href="{% url 'login' %}">
+        <button>Acceder</button>
+    </a>
+</body>
+</html>
+
+{% if messages %}
+  <ul>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+{% endblock %}
