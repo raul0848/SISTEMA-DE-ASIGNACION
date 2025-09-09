@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Menú de Profesores - SisasigProf (demo)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+   <link href="css/styles.css" rel="stylesheet">
+
+ <a href="index.html" class="boton-volver">
+  <button>🏠 Volver a la página principal</button>
+</a>
+
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <div class="min-h-screen flex">
+    <!-- Sidebar -->
+    <aside class="w-80 bg-white shadow p-4">
+      <h1 class="text-2xl font-semibold mb-4">Profesores</h1>
+
+      <input id="search" type="search" placeholder="Buscar profesor..." class="w-full mb-3 p-2 border rounded" />
+
+      <nav id="profList" class="space-y-2 overflow-y-auto max-h-[70vh]"></nav>
+
+      <div class="mt-6 text-sm text-gray-500">
+        <p>Click en un profesor para ver sus materias, grupos y horarios.</p>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="flex-1 p-6">
+      <header class="flex items-center justify-between mb-6">
+        <h2 class="text-3xl font-bold">Detalle del Profesor</h2>
+        <div class="text-sm text-gray-600">Demo generado desde datos de ejemplo SQL</div>
+      </header>
+
+      <section id="profDetail" class="grid grid-cols-1 md:grid-cols-2 gap-6"></section>
+    </main>
+  </div>
+
+  <script>
+    // Datos tomados del script SQL proporcionado (versión de ejemplo en memoria)
+    const horarios = [
+      {id:1, dia:'Lunes', inicio:'08:00', fin:'09:00'},
+      {id:2, dia:'Lunes', inicio:'09:00', fin:'10:00'},
+      {id:3, dia:'Lunes', inicio:'10:00', fin:'11:00'},
+      {id:4, dia:'Martes', inicio:'08:00', fin:'09:00'},
+      {id:5, dia:'Martes', inicio:'09:00', fin:'10:00'},
+      {id:6, dia:'Martes', inicio:'10:00', fin:'11:00'},
+      {id:7, dia:'Miércoles', inicio:'08:00', fin:'09:00'},
+      {id:8, dia:'Miércoles', inicio:'09:00', fin:'10:00'},
+      {id:9, dia:'Miércoles', inicio:'10:00', fin:'11:00'},
+      {id:10, dia:'Jueves', inicio:'08:00', fin:'09:00'},
+      {id:11, dia:'Jueves', inicio:'09:00', fin:'10:00'},
+      {id:12, dia:'Jueves', inicio:'10:00', fin:'11:00'},
+      {id:13, dia:'Viernes', inicio:'08:00', fin:'09:00'},
+      {id:14, dia:'Viernes', inicio:'09:00', fin:'10:00'},
+      {id:15, dia:'Viernes', inicio:'10:00', fin:'11:00'},
+      {id:16, dia:'Lunes', inicio:'11:00', fin:'12:00'},
+      {id:17, dia:'Martes', inicio:'11:00', fin:'12:00'},
+      {id:18, dia:'Miércoles', inicio:'11:00', fin:'12:00'},
+      {id:19, dia:'Jueves', inicio:'11:00', fin:'12:00'},
+      {id:20, dia:'Viernes', inicio:'11:00', fin:'12:00'},
+      {id:21, dia:'Lunes', inicio:'12:00', fin:'13:00'}
+    ];
+
+    const profesores = [
+      {id:1, nombre:'Ana Ríos', especialidad:'Matemáticas', usuarioId:3},
+      {id:2, nombre:'Mario Sánchez', especialidad:'Física', usuarioId:4},
+      {id:3, nombre:'Sandra Gómez', especialidad:'Biología', usuarioId:5},
+      {id:4, nombre:'José Pérez', especialidad:'Historia', usuarioId:6},
+      {id:5, nombre:'Laura Díaz', especialidad:'Lengua y Literatura', usuarioId:7},
+      {id:6, nombre:'Miguel Ortega', especialidad:'Informática', usuarioId:8},
+      {id:7, nombre:'Elena Vargas', especialidad:'Química', usuarioId:9}
+    ];
+
+    const materias = [
+      {id:1, nombre:'Álgebra Lineal', codigo:'MAT101', profesorId:1},
+      {id:2, nombre:'Cálculo Diferencial', codigo:'MAT102', profesorId:1},
+      {id:3, nombre:'Estadística', codigo:'MAT103', profesorId:1},
+
+      {id:4, nombre:'Física I', codigo:'FIS101', profesorId:2},
+      {id:5, nombre:'Electromagnetismo', codigo:'FIS102', profesorId:2},
+      {id:6, nombre:'Física Moderna', codigo:'FIS103', profesorId:2},
+
+      {id:7, nombre:'Biología General', codigo:'BIO101', profesorId:3},
+      {id:8, nombre:'Anatomía Humana', codigo:'BIO102', profesorId:3},
+      {id:9, nombre:'Ecología', codigo:'BIO103', profesorId:3},
+
+      {id:10, nombre:'Historia Universal', codigo:'HIS101', profesorId:4},
+      {id:11, nombre:'Historia de México', codigo:'HIS102', profesorId:4},
+      {id:12, nombre:'Ciencias Sociales', codigo:'HIS103', profesorId:4},
+
+      {id:13, nombre:'Literatura Clásica', codigo:'LEN101', profesorId:5},
+      {id:14, nombre:'Redacción y Estilo', codigo:'LEN102', profesorId:5},
+      {id:15, nombre:'Análisis Literario', codigo:'LEN103', profesorId:5},
+
+      {id:16, nombre:'Programación I', codigo:'INF101', profesorId:6},
+      {id:17, nombre:'Bases de Datos', codigo:'INF102', profesorId:6},
+      {id:18, nombre:'Redes de Computadoras', codigo:'INF103', profesorId:6},
+
+      {id:19, nombre:'Química General', codigo:'QUI101', profesorId:7},
+      {id:20, nombre:'Química Orgánica', codigo:'QUI102', profesorId:7},
+      {id:21, nombre:'Laboratorio de Química', codigo:'QUI103', profesorId:7}
+    ];
+
+    const grupos = [
+      // 3 grupos por profesor
+      {id:1, nombre:'Grupo A1', profesorId:1},{id:2, nombre:'Grupo A2', profesorId:1},{id:3, nombre:'Grupo A3', profesorId:1},
+      {id:4, nombre:'Grupo B1', profesorId:2},{id:5, nombre:'Grupo B2', profesorId:2},{id:6, nombre:'Grupo B3', profesorId:2},
+      {id:7, nombre:'Grupo C1', profesorId:3},{id:8, nombre:'Grupo C2', profesorId:3},{id:9, nombre:'Grupo C3', profesorId:3},
+      {id:10, nombre:'Grupo D1', profesorId:4},{id:11, nombre:'Grupo D2', profesorId:4},{id:12, nombre:'Grupo D3', profesorId:4},
+      {id:13, nombre:'Grupo E1', profesorId:5},{id:14, nombre:'Grupo E2', profesorId:5},{id:15, nombre:'Grupo E3', profesorId:5},
+      {id:16, nombre:'Grupo F1', profesorId:6},{id:17, nombre:'Grupo F2', profesorId:6},{id:18, nombre:'Grupo F3', profesorId:6},
+      {id:19, nombre:'Grupo G1', profesorId:7},{id:20, nombre:'Grupo G2', profesorId:7},{id:21, nombre:'Grupo G3', profesorId:7}
+    ];
+
+    // MateriaHorario: each materia (1..21) maps to horario id (1..21) in the provided SQL
+    const materiaHorario = new Map([
+      [1,1],[2,2],[3,3],[4,4],[5,5],[6,6],[7,7],[8,8],[9,9],[10,10],[11,11],[12,12],[13,13],[14,14],[15,15],[16,16],[17,17],[18,18],[19,19],[20,20],[21,21]
+    ]);
+
+    // Helpers
+    const profListEl = document.getElementById('profList');
+    const profDetailEl = document.getElementById('profDetail');
+    const searchEl = document.getElementById('search');
+
+    function renderProfList(filter = ''){
+      profListEl.innerHTML = '';
+      const q = filter.trim().toLowerCase();
+      profesores.filter(p => p.nombre.toLowerCase().includes(q) || p.especialidad.toLowerCase().includes(q))
+        .forEach(p => {
+          const btn = document.createElement('button');
+          btn.className = 'w-full text-left p-2 rounded hover:bg-gray-50 flex items-center gap-3';
+          btn.innerHTML = `<div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">${p.nombre.split(' ').map(n=>n[0]).slice(0,2).join('')}</div>
+                           <div class="flex-1">
+                             <div class="font-medium">${p.nombre}</div>
+                             <div class="text-xs text-gray-500">${p.especialidad}</div>
+                           </div>`;
+          btn.addEventListener('click', ()=> showProfesor(p.id));
+          profListEl.appendChild(btn);
+      });
+    }
+
+    function showProfesor(profesorId){
+      const prof = profesores.find(x => x.id === profesorId);
+      if(!prof) return;
+
+      const profMaterias = materias.filter(m => m.profesorId === profesorId);
+      const profGrupos = grupos.filter(g => g.profesorId === profesorId);
+
+      profDetailEl.innerHTML = '';
+
+      // Card: información básica
+      const infoCard = document.createElement('article');
+      infoCard.className = 'bg-white p-4 rounded shadow';
+      infoCard.innerHTML = `
+        <h3 class="text-xl font-semibold mb-2">${prof.nombre}</h3>
+        <p class="text-sm text-gray-600 mb-4">Especialidad: <strong>${prof.especialidad}</strong></p>
+        <p class="text-sm text-gray-700">Materias a cargo: <strong>${profMaterias.length}</strong></p>
+        <p class="text-sm text-gray-700">Grupos: <strong>${profGrupos.length}</strong></p>
+      `;
+
+      // Card: materias
+      const matCard = document.createElement('section');
+      matCard.className = 'bg-white p-4 rounded shadow';
+      matCard.innerHTML = `<h4 class="font-semibold mb-2">Materias</h4>`;
+      const matList = document.createElement('div');
+      matList.className = 'space-y-2';
+
+      profMaterias.forEach(m => {
+        const hid = materiaHorario.get(m.id);
+        const h = horarios.find(hh => hh.id === hid);
+        matList.innerHTML += `
+          <div class="p-2 border rounded">
+            <div class="font-medium">${m.nombre} <span class="text-xs text-gray-500">(${m.codigo})</span></div>
+            <div class="text-xs text-gray-600">Horario: ${h ? `${h.dia} ${h.inicio} - ${h.fin}` : '—'}</div>
+          </div>
+        `;
+      });
+
+      matCard.appendChild(matList);
+
+      // Card: grupos
+      const grpCard = document.createElement('section');
+      grpCard.className = 'bg-white p-4 rounded shadow';
+      grpCard.innerHTML = `<h4 class="font-semibold mb-2">Grupos</h4>`;
+      const grpList = document.createElement('div');
+      grpList.className = 'flex flex-wrap gap-2';
+      profGrupos.forEach(g => {
+        const chip = document.createElement('div');
+        chip.className = 'px-3 py-1 border rounded text-sm';
+        chip.textContent = g.nombre;
+        grpList.appendChild(chip);
+      });
+      grpCard.appendChild(grpList);
+
+      // Card: contacto de usuario (demo, basado en tabla Usuario/Login)
+      const loginDemo = {
+        3: {usuario:'ana.rios'}, 4:{usuario:'mario.sanchez'},5:{usuario:'sandra.gomez'},6:{usuario:'jose.perez'},7:{usuario:'laura.diaz'},8:{usuario:'miguel.ortega'},9:{usuario:'elena.vargas'}
+      };
+
+      const contactCard = document.createElement('section');
+      contactCard.className = 'bg-white p-4 rounded shadow';
+      const login = loginDemo[prof.usuarioId];
+      contactCard.innerHTML = `
+        <h4 class="font-semibold mb-2">Cuenta (demo)</h4>
+        <p class="text-sm">Usuario: <strong>${login ? login.usuario : '—'}</strong></p>
+        <p class="text-sm text-gray-500">Contraseña: <em>*** (ficticia)</em></p>
+      `;
+
+      profDetailEl.appendChild(infoCard);
+      profDetailEl.appendChild(matCard);
+      profDetailEl.appendChild(grpCard);
+      profDetailEl.appendChild(contactCard);
+
+      // Smooth scroll to main
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    // Init
+    renderProfList();
+    // Show first professor by default
+    showProfesor(profesores[0].id);
+
+    // Search
+    searchEl.addEventListener('input', (e)=> renderProfList(e.target.value));
+
+  </script>
+</body>
+</html>
+
