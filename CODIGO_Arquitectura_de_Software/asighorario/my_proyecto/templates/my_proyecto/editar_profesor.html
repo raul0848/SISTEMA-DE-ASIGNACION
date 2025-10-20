@@ -1,0 +1,10 @@
+<h2>Editar Profesor</h2>
+<form method="post">
+    {% csrf_token %}
+    <label>Nombre:</label><input type="text" name="nombre" value="{{ profesor.0 }}"><br>
+    <label>Especialidad:</label><input type="text" name="especialidad" value="{{ profesor.1 }}"><br>
+    <button type="submit">Guardar Cambios</button>
+</form>
+<a href="{% url 'gestionar_profesores' %}">
+    <button type="button">Regresar</button>
+</a>
