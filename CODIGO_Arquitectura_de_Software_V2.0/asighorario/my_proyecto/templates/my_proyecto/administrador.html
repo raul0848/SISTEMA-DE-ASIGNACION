@@ -1,0 +1,139 @@
+{# templates/my_proyecto/administrador.html #}
+{% load static %} 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Panel Administrador</title>
+  <title>Bienvenido - {{ Usuario.Username }}</title>
+  <link rel="stylesheet" href="{% static 'my_proyecto/css/styles.css' %}">
+</head>
+<body>
+
+  <!-- ... menú lateral ... -->
+  <div class="sidebar">
+      <h2>Menu del Administrador</h2>
+      <h2>Bienvenido: {{ username }}</h2>
+      <button onclick="toggleContent('agregarProfesorForm')">Agregar Profesor</button>
+      <button onclick="toggleContent('buscarProfesorTable')">Buscar Profesor</button>
+      <button onclick="toggleContent('agregarMateriaForm')">Editar Profesor</button>
+      <button onclick="toggleContent('agregarHorarioForm')">Estado Profesor</button>
+      <a href="{% url 'my_proyecto:logout' %}"><h2>Cerrar sesión</h2></a>
+  </div>
+
+  <!-- Contenido principal -->
+  <div class="main-content">
+     {% if messages %}
+    <div id="messages">
+      {% for message in messages %}
+        <div class="message {{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+    <!-- Formulario Agregar Profesor -->
+    <div class="form-container" id="agregarProfesorForm" style="display:none; margin-top:20px; background:white; padding:20px; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.2); max-width:500px;">
+      <h1>Agregar Profesor</h1>
+  <form method="post" action="{% url 'my_proyecto:agregar_profesor' %}">
+    {% csrf_token %}
+    <!-- Solo campos de la tabla Profesor -->
+    <label>Nombre:</label><input type="text" name="nombre" required><br>
+    <label>Apellido Paterno:</label><input type="text" name="ap_pat" required><br>
+    <label>Apellido Materno:</label><input type="text" name="ap_mat"><br>
+    <label>Num. Empleado:</label><input type="text" name="num_empleado" required><br>
+    <label>Dirección:</label><input type="text" name="direccion"><br>
+    <label>Email (opcional, si lo dejas vacío se generará):</label><input type="email" name="email"><br>
+    <label>Teléfono:</label><input type="text" name="telefono"><br>
+    <label>Fecha de Ingreso (dd/mm/aaaa):</label><input type="date" name="fecha_ingreso"><br>
+    
+    <label>Especialidad:</label><input type="text" name="especialidad"><br>
+
+    <button type="submit">Registrar Profesor</button>
+</form>
+    </div>
+
+    <!-- Tabla Buscar Profesor -->
+    <div class="table-container" id="buscarProfesorTable" style="display:none;">
+        <h2>Profesores</h2>
+        <form method="GET" action="{% url 'my_proyecto:buscar_profesor' %}">
+            <input type="text" name="id" placeholder="ID del profesor">
+            <input type="text" name="nombre" placeholder="Nombre del profesor">
+            <input type="submit" value="Buscar">
+        </form>
+
+        {% if profesores %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Username</th>
+                    <th>Rol</th>
+                    <th>Materia</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for profesor in profesores %}
+                <tr>
+                    <td>{{ profesor.id }}</td>
+                    <td>{{ profesor.nombre }}</td>
+                    <td>{% if profesor.usuario %}{{ profesor.usuario.Username|default:profesor.usuario.username }}{% else %}-{% endif %}</td>
+                    <td>{% if profesor.usuario %}{{ profesor.usuario.RolId|default:profesor.usuario.rol }}{% else %}-{% endif %}</td>
+                    <td>{% for materia in profesor.materias.all %}{{ materia.nombre }} {% endfor %}</td>
+                    <td class="action-buttons">
+                        <a href="{% url 'editar_profesor' profesor.id %}"><button class="edit-btn">Editar</button></a>
+                        <a href="{% url 'eliminar_profesor' profesor.id %}"><button class="delete-btn">Eliminar</button></a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+
+    <!-- Formulario Agregar Materia -->
+    <div class="form-container" id="agregarMateriaForm" style="display:none;">
+        <h2>Agregar Materia</h2>
+        <form method="POST" action="{% url 'my_proyecto:agregar_materia' %}">
+            {% csrf_token %}
+            <input type="text" name="nombre_materia" placeholder="Nombre de la materia" required>
+            <input type="text" name="aula" placeholder="Aula" required>
+            <input type="submit" value="Agregar Materia">
+        </form>
+    </div>
+
+    <!-- Formulario Agregar Horario -->
+    <div class="form-container" id="agregarHorarioForm" style="display:none;">
+        <h2>Agregar Horario</h2>
+        <form method="POST" action="{% url 'my_proyecto:agregar_horario' %}">
+            {% csrf_token %}
+            <input type="text" name="dia" placeholder="Día" required>
+            <input type="time" name="horario_inicio" placeholder="Horario Inicio" required>
+            <input type="time" name="hora_fin" placeholder="Hora Fin" required>
+            <input type="submit" value="Agregar Horario">
+        </form>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script>
+    function toggleContent(id) {
+      // Oculta todos
+      const allContent = document.querySelectorAll('.form-container, .table-container');
+      allContent.forEach(c => c.style.display = 'none');
+      // Muestra el seleccionado
+      const selected = document.getElementById(id);
+      if(selected) { selected.style.display = 'block'; }
+    }
+
+    // Reabrir formulario si la vista puso request.session['open_form']
+    (function(){
+      const openForm = "{{ request.session.open_form|default:'' }}";
+      if (openForm) {
+        const el = document.getElementById(openForm);
+        if (el) { el.style.display = 'block'; }
+      }
+    })();
+  </script>
+</body>
+</html>

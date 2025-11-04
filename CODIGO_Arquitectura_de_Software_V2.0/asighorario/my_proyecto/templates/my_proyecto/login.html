@@ -1,0 +1,34 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Iniciar sesión</title>
+  <link rel="stylesheet" href="{% static 'my_proyecto/css/styles.css' %}">
+</head>
+<body>
+  <h2>Iniciar Sesión</h2>
+
+  {% if messages %}
+    <ul class="mensajes">
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <form method="post" action="{% url 'my_proyecto:login' %}">
+    {% csrf_token %}
+    <label>Usuario:</label>
+    <input type="text" name="usuario" value="{{ usuario|default:'' }}"><br>
+
+    <label>Contraseña:</label>
+    <input type="password" name="contrasena"><br><br>
+
+    <button type="submit">Ingresar</button>
+  </form>
+
+  <p><a href="{% url 'my_proyecto:index' %}">Página de inicio</a></p>
+</body>
+</html>

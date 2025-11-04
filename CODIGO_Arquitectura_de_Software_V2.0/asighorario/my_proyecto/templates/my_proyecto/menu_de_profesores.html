@@ -1,0 +1,74 @@
+{% load static %}
+  {% if messages %}
+  <div id="messages">
+    {% for message in messages %}
+      <div class="message {{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Horario - {{ profesor.nombre }}</title>
+  <link rel="stylesheet" href="{% static 'my_proyecto/css/styles.css' %}">
+  <div style="text-align: right; margin-bottom: 20px;">
+  <form action="{% url 'my_proyecto:cerrar_sesion' %}" method="post">
+    {% csrf_token %}
+  </form>
+</div>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Horario de {{ profesor.Nombre }} {{ profesor.ApPat }} {{ profesor.ApMat }}<br> </h1>
+      <h2>Datos del Profesor</h2>
+
+
+        <strong>Número de Empleado:</strong> {{ profesor.NumEmpleado }}<br>
+        <strong>Especialidad:</strong> {{ profesor.Especialidad }}<br>
+        <strong>Correo:</strong> {{ profesor.Email }}<br>
+        <strong>Teléfono:</strong> {{ profesor.Telefono }}<br>
+        <strong>Dirección:</strong> {{ profesor.Direccion }}<br>
+        <strong>Fecha de Ingreso:</strong> {{ profesor.FechaIngreso }}<br>
+   
+      <a style="color: white;"href="{% url 'my_proyecto:logout' %}"><h2>Cerrar sesión</h2></a>
+    </header>
+
+    <table class="timetable" aria-label="Horario semanal">
+      <thead>
+        <tr>
+          <th></th>
+          {% for d in day_order %}<th>{{ d }}</th>{% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <td class="time-col">{{ row.slot_time|time:"H:i" }}</td>
+          {% for cell in row.cells %}
+            {% if cell == "OCUPADO" %}
+              <td class="ocupado slot-small"></td>
+            {% elif cell %}
+              <td class="slot-small" rowspan="{{ cell.rowspan }}">
+                <div class="class-card">
+                  <div class="mat"><strong>{{ cell.clase.materia }}</strong></div>
+                  {% if cell.clase.aula %}<div class="meta">Aula: {{ cell.clase.aula }} ({{ cell.clase.edificio }})</div>{% endif %}
+                  {% if cell.clase.grupo_id %}<div class="meta">Grupo: {{ cell.clase.grupo_id }}</div>{% endif %}
+                  <div class="meta">Duración: {{ cell.clase.dur_minutes }} min</div>
+                  <div class="meta">Hora: {{ cell.clase.inicio|time:"H:i" }} - {{ cell.clase.fin|time:"H:i" }}</div>
+                  <div class="meta">Aula: {{ cell.clase.aula|default:"—" }} ({{ cell.clase.edificio|default:"—" }})</div>
+
+                </div>
+              </td>
+            {% else %}
+              <td class="slot-small"></td>
+            {% endif %}
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

@@ -1,0 +1,225 @@
+{% load static %}
+  {% if messages %}
+  <div id="messages">
+    {% for message in messages %}
+      <div class="message {{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio - SisasigProf</title>
+
+    <!-- Tus estilos -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'my_proyecto/css/styles.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Krub:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+    <link rel="preload" href="css/styles.css" as="style">
+    <link href="css/styles.css" rel="stylesheet">
+    
+</head>
+<body>
+    <header>
+        <h1 class="titulo">Sistemas de Asignacion De Profesores</h1>
+    </header>
+
+    <div class="nav-bg">
+      <nav class="navegacion-principal contenedor">
+          <!-- Botón que abre modal -->
+          <a button id="openAdmin" class="btn btn-ghost">Administrador</a>
+          <a button id="openProfesor" class="btn btn-ghost">Profesores</a>
+          <a href="{% url 'my_proyecto:signup' %}">Registro</a>
+      </nav>
+    </div>
+
+    <section class="hero">
+        <div class="hero-contenido">
+            <!-- Aquí va tu imagen o contenido hero -->
+        </div>
+    </section>
+    
+    <section class="mision-vision">
+      <h2>Misión</h2>
+      <p>Proporcionar a las instituciones educativas una solución tecnológica eficiente que automatice la asignación de horarios y materias para los docentes, garantizando una distribución equitativa, transparente y libre de conflictos, con el fin de optimizar la gestión académica y facilitar el trabajo administrativo.</p>
+      <h2>Visión</h2>
+      <p>Ser un sistema de referencia en la gestión académica a nivel institucional, reconocido por su capacidad de integrar, simplificar y mejorar los procesos de asignación docente, contribuyendo a una educación organizada, moderna y apoyada en herramientas tecnológicas innovadoras.</p>
+    </section>
+
+    <!-- Modal login para Profesores (inicialmente oculto) -->
+<div id="loginProfesorBackdrop" class="modal-backdrop" aria-hidden="true" style="display:none;">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="loginProfesorTitle">
+    <h3 id="loginProfesorTitle">Iniciar sesión - Profesor</h3>
+
+    <form id="loginProfesorForm">
+      {% csrf_token %}
+      <div class="form-row">
+        <label for="prof_usuario">Usuario</label>
+        <input id="prof_usuario" name="usuario" type="text" autocomplete="username">
+      </div>
+      <div class="form-row">
+        <label for="prof_contrasena">Contraseña</label>
+        <input id="prof_contrasena" name="contrasena" type="password" autocomplete="current-password">
+      </div>
+
+      <div id="loginProfesorMessage" class="msg" role="status" aria-live="polite"></div>
+
+      <div class="actions">
+        <button type="button" id="closeProfesorModal" class="btn btn-ghost">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Ingresar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+    <!-- Modal login -->
+    <div id="loginBackdrop" class="modal-backdrop" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+        <h3 id="loginTitle">Iniciar sesión - Administrador</h3>
+
+        <form id="loginForm">
+          {% csrf_token %}
+          <div class="form-row">
+            <label for="usuario">Usuario</label>
+            <input id="usuario" name="usuario" type="text" autocomplete="username">
+          </div>
+          <div class="form-row">
+            <label for="contrasena">Contraseña</label>
+            <input id="contrasena" name="contrasena" type="password" autocomplete="current-password">
+          </div>
+          <div id="loginMessage" class="msg" role="status" aria-live="polite"></div>
+
+          <div class="actions">
+            <button type="button" id="closeModal" class="btn btn-ghost">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Ingresar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Mensajes Django -->
+    {% if messages %}
+      <ul class="mensajes">
+        {% for m in messages %}<li>{{ m }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+
+    <script>
+      // Helper CSRF
+      function getCookie(name) {
+        const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+        return v ? v.pop() : '';
+      }
+
+      const openBtn = document.getElementById('openAdmin');
+      const backdrop = document.getElementById('loginBackdrop');
+      const closeBtn = document.getElementById('closeModal');
+      const form = document.getElementById('loginForm');
+      const msg = document.getElementById('loginMessage');
+
+      function showModal(){
+        backdrop.style.display = 'flex';
+        backdrop.setAttribute('aria-hidden','false');
+        document.getElementById('usuario').focus();
+      }
+      function hideModal(){
+        backdrop.style.display = 'none';
+        backdrop.setAttribute('aria-hidden','true');
+        msg.textContent = '';
+        form.reset();
+      }
+
+      openBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        showModal();
+      });
+      closeBtn.addEventListener('click', hideModal);
+      backdrop.addEventListener('click', (e) => {
+        if (e.target === backdrop) hideModal();
+      });
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        msg.textContent = 'Verificando...';
+
+        const fd = new FormData(form);
+        const csrftoken = getCookie('csrftoken');
+
+        try {
+          const response = await fetch("{% url 'my_proyecto:login_api' %}", {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrftoken },
+            body: fd,
+            credentials: 'same-origin'
+          });
+
+          const data = await response.json();
+          if (response.ok && data.success) {
+            hideModal();
+            window.location.href = data.redirect || "{% url 'my_proyecto:administrador' %}";
+          } else {
+            msg.textContent = data.error || 'Credenciales inválidas';
+          }
+        } catch (err) {
+          msg.textContent = 'Error de conexión';
+          console.error(err);
+        }
+      });
+    </script>
+    
+    <script>
+  // Reusar el getCookie que ya tienes para CSRF
+  function getCookie(name) {
+    const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return v ? v.pop() : '';
+  }
+
+  // Elementos
+  const openProfesorBtn = document.getElementById('openProfesor');
+  const profesorBackdrop = document.getElementById('loginProfesorBackdrop');
+  const closeProfesorBtn = document.getElementById('closeProfesorModal');
+  const profForm = document.getElementById('loginProfesorForm');
+  const profMsg = document.getElementById('loginProfesorMessage');
+
+  function showProfesorModal(){ profesorBackdrop.style.display = 'flex'; profesorBackdrop.setAttribute('aria-hidden','false'); document.getElementById('prof_usuario').focus(); }
+  function hideProfesorModal(){ profesorBackdrop.style.display = 'none'; profesorBackdrop.setAttribute('aria-hidden','true'); profMsg.textContent = ''; profForm.reset(); }
+
+  openProfesorBtn.addEventListener('click', (e)=>{ e.preventDefault(); showProfesorModal(); });
+  closeProfesorBtn.addEventListener('click', hideProfesorModal);
+  profesorBackdrop.addEventListener('click', (e)=> { if(e.target===profesorBackdrop) hideProfesorModal(); });
+
+  profForm.addEventListener('submit', async (e)=> {
+    e.preventDefault();
+    profMsg.textContent = 'Verificando...';
+
+    const fd = new FormData(profForm);
+    const csrftoken = getCookie('csrftoken');
+
+    try {
+      const response = await fetch("{% url 'my_proyecto:login_api_profesor' %}", {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrftoken },
+        body: fd,
+        credentials: 'same-origin'
+      });
+
+      const data = await response.json();
+      if (response.ok && data.success) {
+        hideProfesorModal();
+        // redirigir a menu_de_profesores (usamos la URL que devuelve el backend)
+        window.location.href = data.redirect || "{% url 'my_proyecto:menu_profesores' %}";
+      } else {
+        profMsg.textContent = data.error || 'Credenciales inválidas';
+      }
+    } catch (err) {
+      profMsg.textContent = 'Error de conexión';
+      console.error(err);
+    }
+  });
+</script>
+
+</body>
+</html>

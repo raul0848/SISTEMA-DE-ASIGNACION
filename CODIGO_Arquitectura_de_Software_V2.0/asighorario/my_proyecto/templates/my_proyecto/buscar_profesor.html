@@ -1,0 +1,16 @@
+<h2>Buscar Profesor</h2>
+<form method="post">
+    {% csrf_token %}
+    <label>ID del profesor:</label>
+    <input type="text" name="id">
+    <button type="submit">Buscar</button>
+</form>
+
+{% if profesor %}
+    <p>ID: {{ profesor.0 }}</p>
+    <p>Nombre: {{ profesor.1 }}</p>
+    <p>Especialidad: {{ profesor.2 }}</p>
+{% endif %}
+<a href="{% url 'gestionar_profesores' %}">
+    <button type="button">Regresar</button>
+</a>
